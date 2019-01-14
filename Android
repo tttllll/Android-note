@@ -1,0 +1,382 @@
+Android第一次笔记
+  1、包名：作为apk的唯一标识，同时一个设备只能装载唯一包名的程序
+  2、四大组件
+     1) Activity:一个界面
+          生命周期：创建：onCreate() -> onStart() -> onResume()
+                                       (布局可见)
+                   销毁：onPause() -> onStop() -> onDestroy()
+                           (可保存当前Activity的各种信息)
+          Activity之间通信：Intent对象进行数据交互
+            Activity1：
+               Intent intent = new Intent(Activity1.this,Activity2.class);
+               startActivity(intent);
+            Activity2：
+               Intent intent = getIntent();
+          super.onCreate(savedInstanceState); 作用是调用父类的onCreate方法来实现界面图画绘制，加载组件
+                savedInstanceState(): 用来保存当前activity的状态信息(在paused状态时，要被KILLED的时候),用来保存状态信息的Bundle会同时传给两个method,即onRestoreInstanceState() and onCreate()
+          setContentView：加载界面(xml布局文件)
+
+    2) broadcast
+    3) service
+    4) contentProvider
+
+  3、单位
+    1) px：像素，是最小的计量单位
+    2) dp:与像素密度密切相关，为兼容分辨率最好使用dp
+    3) sp:多用于字体大小设置
+    4) density:屏占比
+  4、gravity：对控件本身来讲，其内容的位置
+     layout_gravity：本模块相对于父模块的位置
+  5、日志查看
+      adb shell
+      logcat |grep [过滤条件]
+  6、横竖屏切换
+      onRestoreIntanceState()
+  7、EditText
+      android:hint = "请输入..."
+      校验输入类型是否为数字：android:inputType="number"
+      获取输入框的值：初始化控件
+                    调用getText()方法
+  8、padding和margin
+        padding：内边距
+        margin：外边距
+
+Android第二次笔记
+  1、RelativeLayout(相对布局)
+      以原点为基点，控件可叠加，可参照最近的布局相对定位，性能低
+  2、FrameLayout(帧布局)
+      以原点为基点，可叠加，只能依靠margin布局，性能高
+  3、RadioButton(单选按钮)
+      <RadioGroup>
+          <RadioButton />
+          ...
+      </RadioGroup>
+      默认选中：android:checked="true"
+      获取选中的值：设置监听事件：实现OnCheckedChangeListener()
+                   继承方法：onCheckedChanged()
+                   点击事件：onClick()
+                   获取group下的单选按钮：getChinldAt()
+                   获取group下的按钮数量:getChildCount()
+                   判断是否被选中：isChecked()
+      自定义点击效果：
+          编写selector可设置不同状态时的图片
+          触碰到该控件：android:state_pressed
+          被选中：android:state_checked
+     tag设置映射值
+  4、CheckBox(复选框)
+      获取选中值：
+          继承方法：onCheckedChanged()
+          判断是否被选中：isChecked()
+
+Android第三次笔记
+  1、为什么listView常搭配adapter使用
+      连接数据和adapter的桥梁，adapter是把数据映射到listView上的中介，当列表中的每一项显示到页面时，
+      都会调用Adapter的getView()方法返回一个view，而listView使用setAdapter()绑定适配器
+  2、ArrayAdapter的构造方法参数(this,android.R.layout.simple_expandable_list_item_1,listData)
+      1)上下文对象
+      2)listView item的布局资源id
+      3)listView数据
+  3、SimpleAdapter的构造方法参数
+      1)上下文对象
+      2)数据源
+      3)listView item的布局资源
+      4)数据源中Map的key组成的一个String数组
+      5)数据源中Map的value要放置在item中的哪个控件位置上。其实就是自定义的item布局文件中每个控件的id’
+  4、自定义Adapter继承BaseAdapter
+
+Android第四次笔记
+   1、progressBar(进度条)
+        max：进度条的最大值
+        progress：进度条已经完成的进度值，相当于当前进度
+        secondaryProgress：二级进度条，相当于缓存的进度
+        style="@android:style/Widget.ProgressBar.Horizontal"：设置为水平进度条
+   2、seekBar(拖动条)
+        1) 是progressBar的子类，可使用progressBar的属性
+        2) progressDrawable:可引入自定义的拖动条
+        3) 实现SeekBar.OnSeekBarChangeListener，重写三个方法：
+        onProgressChanged：seekBar发生改变时触发，onStartTrackingTouch：按住seekBar时触发，onStopTrackingTouch：放开seekBar时触发
+        常使用第三个
+   3、自定义Adapter
+        1) 继承BaseAdapter
+        2) 重写方法：getCount()：listView数据集的长度，即决定listView有多少个item
+                    getItem()：获取数据集中指定位置的项,
+                    getItemId()：即position,
+                    getView()：listView通过getView()方法请求视图
+        3) 在getView()中创建一个布局填充对象：LayoutInflater.from(context)，调用inflate()方法填充布局，
+           用convertView对象的findViewById()获取item布局中的控件，再将数据集中的值赋给控件
+        4) inflate()中的属性：resource：需要实例化的布局资源id
+                             root：ViewGroup类型视图组对象
+                             attachToRoot：是否将resource实例化后的View添加到参数root中
+           注：root不为空的时候，attachToRoot为true或者false，否则会报错(亲测)
+               root为空时，无视attachToRoot
+        5) listView的setAdapter()绑定适配器
+   4、Handler消息处理机制
+        1) Handler实现两个线程之间的数据传递
+        2) what:用来标识信息的int值，通过该值主线程能判断出来自不同地方的信息来源
+           arg1和arg2：传递int类型值的两个变量
+           obj：用来传递任何实例化对象
+        3) 发送消息：mHandler.sendMessage(message)
+        4) 接收消息：重写Handler的handlerMessage方法，该方法传入了一个参数Message，即接收到的消息
+
+Android第五次笔记
+   1、TextView属性补充：
+      1) android:autoLink:
+          none:表示不进行任何匹配，默认
+          web:表示匹配Web Url
+          email:表示匹配邮件地址
+          phone:表示匹配电话号码
+          map:表示匹配地图地址
+          all:表示将会匹配web、email、phone、map
+      2)跑马灯效果：android:ellipsize="marquee"
+                   android:marqueeRepeatLimit="marquee_forever"
+                   android:singleLine="true"
+  2、convertView复用
+      ListView先请求一个type1视图(getView)，然后请求其他可见的item，convertView在getView中是空(null)的
+      当滑出item后，ListView会次请求一个视图，这时convertView值不是空的，而是滑出的item，新的item会复用滑出的item
+  3、listView的焦点问题
+      1)为抢占了控件的组件设置:android:focusable="false"
+      2)在Item布局的根节点添加上述属性:android:descendantFocusability="blocksDescendants"
+  4、listView与CheckBox的错位
+      教程里面的方法是解决不了错位的，虽然在onCheckedChanged()里面对勾选或者不勾选的item进行了记录，但是复用的时候会重新进入这个方法，
+      把勾选状态重置成复用的item的状态，原来item的状态就没有保存下来
+  5、项目结构目录讲解
+      . gradle和.idea：放置的都是Android Studio自动生成的一些文件
+      .gitignore：用来将指定的目录或文件排除在版本控制之外的
+       build.gradle：项目全局的gradle构建脚本，通常这个文件中的内容是不需要修改的
+
+Android第六次笔记
+  1、ListView与CheckBox错位问题
+      加载视图时通过记录getFirstVisiblePosition()和getLastVisiblePosition()之间的item的状态，防止未显示item来复用
+  2、使用java代码进行控件布局
+      在java文件中实例化控件，然后通过seXXX()方法来设置控件的属性来进行布局
+  3、跑马灯获取焦点(文字足够长)
+      设置属性：
+           android:ellipsize="marquee"
+           android:marqueeRepeatLimit="marquee_forever"
+           android:singleLine="true"
+      获取焦点属性(必须)：
+           setFocusable(true)
+      失去焦点
+           onWindowFocusChanged()方法
+           textView.requestFocusFromTouch()
+  4、ViewFlipper(翻转视图)
+     1) 可静态导入要显示的视图
+     2) 可通过addView()方法填充要显示的视图
+     3) onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+          点击的起始位置的记录，只记录一次
+          e1：开始点击的位置
+          e2：结束点击的位置
+     4)onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
+         在拖动的过程中会一直记录在屏幕上的位置
+         e1：开始点击的位置
+         e2：结束点击的位置
+     5)通过判断起始位置的差值来判断是左滑还是右滑
+
+Android第七次笔记
+   1、Message
+      1) 使用Message机制保护了线程之间的安全，不用关心具体的消息接受者，使得消息本身和线程剥离开，可以实现定时，异步发送消息等操作
+      2) Message msg = new Message();  //消耗内存
+         Message msg = Message.obtain();   //推荐使用
+   2、  handler传送消息的机制
+      1) 通常被用来通知更新UI界面，也写在UI线程中
+      2) what:用来标识信息的int值，通过该值主线程能判断出来自不同地方的信息来源
+        arg1和arg2：传递int类型值的两个变量
+        obj：用来传递任何实例化对象
+      3) 发送消息：mHandler.sendMessage(message)
+      4) 接收消息：重写Handler的handlerMessage方法，该方法传入了一个参数Message，即接收到的消息
+   3、耗时操作写在子线程中，然后在子线程中发送消息通知主线程中的handler进行UI更新的操作,
+      主线程中放超过5秒的操作会引发arn的异常，且UI线程中禁止进行网络操作，否则会报android.os.NetworkOnMainThreadException
+   4、在activity的destroy()方法中执行removeCallBackAndMessage(null)方法，可销毁没有执行完的handler，防止内存泄漏
+   5、Toast的简单应用
+      Toast.makeText(mContext, str, showTime);
+         mContext：上下文对象
+         str: 提示的内容
+         showTime: 显示的时间，只有LONG和SHORT两种会生效
+       提示：toast不能写在子线程中
+   6、Environment
+     1) getExternalStorageState() 方法，返回String 获取外部存储设备的当前状态
+     2) getExternalStoragePublicDirectory(String type) 返回 File 获取一个公用的外部存储器目录（标准目录）来摆放某些类型的文件
+   7、bitmap
+      decodeFile(path,opt);
+        path: 图片路径
+        opt: 图片设置过后的宽高
+        BitmapFactory.Options类的对象opt可获取到图片原始的宽高,即：opt.outWith和opt.outHeight
+        opt.inSampleSize可设置图片缩放比例，缩放比例前设置opt.inJustDecodeBounds = true此时获取到的bitmap==null
+        缩放完成后设置opt.inJustDecodeBounds = false，即可获取到bitmap
+   8、io流
+       1) 得到地址开始读流
+       2) 判断读取的长度,并输出
+           byte[] b=new byte[1024];
+           int len=in.read(b);
+           while(len!=-1){
+               out.write(b,0,len);
+           }
+       3) 关闭流：in.close();
+           
+android第八次笔记
+    1、设置读取权限
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    2、getExternalCacheDir()
+        通常先获取外部存储的读写存的权限，如果可用则获取存储的目录
+        /Android/data/< package name >/files/… (该路径通常挂载在/mnt/sdcard/下)
+        mContext.getExternalCacheDir().getAbsolutePath()
+    3、getCacheDir()
+        如果外存不可用，则获取内部存储的读写存的权限，如果可用则获取存储的目录
+        /data/data/< package name >/files/… (该路径挂载在在手机自身存储目录)
+        mContext.getCacheDir().getAbsolutePath()
+    4、AsyncTask异步任务
+         用于处理异步任务，后台是一个线程池，一个task只能被执行一次
+         1)、AsyncTask<Params,progress,Result>
+             params: 启动任务执行时输入的参数
+             progress：后台任务执行的百分比
+             Result：后台任务执行完成后返回的结果
+         2)、重写方法：
+             onPreExecute():在执行耗时操作前被调用，通常是做初始化操作
+             doInBackground(): onPreExecute()执行完后执行，负责耗时的后台操作
+             onPostExecute(): doInBackground()执行完后执行，该方法被UI线程调用，将后台耗时操作的结果展现在界面上
+         3)、task只能执行一次，task.execute(url);
+         4)、AsyncTask是串行执行多个任务(execute())，如果要强行并发执行多个任务，可使用executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR)，这样不用等上个任务执行完才执行下一个任务
+Android第九次笔记
+    1、Handler消息处理机制
+         handler作为消息的处理者，一是处理message，二是将message压入messagequeue中
+         1) Handler实现任意两个线程之间的数据传递
+         2) Message：消息实体,可用来接收和处理消息
+         3) Messagequeue：用来存放消息的消息队列，具有队列的常规操作
+         4) looper：从消息队列中取出消息后，对消息进行分发
+            activity的主线程都会自动创建一个mainLooper，子线程需自己创建looper：(1)looper.prepare()准备工作，(2)创建消息处理的handler，(3)调用looper.loop()进入消息循环
+    2、service
+         service是允许长时间驻留后台的一个组件，可执行在后台的操作，例如网络下载的操作
+         1)、service的生命周期：
+             启动时调用onStart()方法整个生命周期只会执行一次，然后是onStartCommand()方法可重复调用(startService(intent)),onDestroy()方法销毁service
+Android第十次笔记
+     1、service服务
+         1)、service的启动
+              显式：action+包名intent.setPackage(context.getPackageName());
+              隐式：类名+包名
+         2)、activity和service之间的通信
+              无绑定：
+                Intent intent = new Intent();
+                intent.setPackage(getPackageName());
+                intent.setAction("com.lunzn.myapplication.service.FirstService");
+                startService(intent);
+              绑定：
+                (1) 在自定义service中继承Binder，实现自己的Binder对象
+                (2) 通过onBinder方法返回IBinder对象
+                (3) 在绑定的类中
+                    Intent intent = new Intent();
+                    intent.setAction("com.lunzn.myapplication.service.FirstService");
+                    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+                    mConnection为ServiceConnection的对象，ServiceConnection()：监听绑定者与service之间的连接情况
+                    再重写以下两个方法
+                        与service的连接成功时service即service的对象：onServiceConnected(ComponentName name, IBinder service)
+                        与service断开连接时回调：onServiceDisconnected(ComponentName name)方法
+         3)、android:exported="true" 允许外部调用
+         4)、service的解绑：getApplicationContext().unbindService(mConnection);(使用上下文解绑)
+         5)、避免在service中进行耗时的操作
+     2、broadcast广播
+          1)、动态注册广播
+              IntentFilter intentFilter = new IntentFilter();
+              intentFilter.addAction("FirstReceive");
+              registerReceiver(mReceiver, intentFilter);
+          2)、静态注册广播（开机即可接收广播）
+              <receiver android:name=".receiver.FirstReceiver">
+                   <intent-filter>
+                       <action android:name="com.lunzn.myapplication.receiver.FirstReceiver"/>
+                   </intent-filter>
+               </receiver>
+          3)、取消广播
+              unregisterReceiver(mReceiver);
+          4)、发送广播
+              (1) 定义一个广播接收器，继承BroadcastReceiver，重写onReceive()方法
+              (2) 发送广播sendBroadcast(intent);
+      3、parcelable和serializable
+          1)、序列化的目的：
+              数据的持久化保存
+              通过序列化操作将对象数据在网络上进行传输
+              将对象数据在进程之间传输
+          2)、parcelable的内存开销小于serializable，serializable在序列化操作时利用反射的机制，会产生大量的临时变量，导致GC频繁调用
+          3)、Android中使用parcelable
+              Implements Parcelable的时候需要实现内部的方法：
+              (1) writeToParcel 将对象数据序列化成一个Parcel对象(序列化之后成为Parcel对象.以便Parcel容器取出数据)
+              (2) 重写describeContents方法,默认值为0
+              (3) Public static final Parcelable.Creator<T>CREATOR 反序列化(将Parcel容器中的数据转换成对象数据) 同时需要实现两个方法:
+              　　 CreateFromParcel(从Parcel容器中取出数据并进行转换.)
+              　　 newArray(int size)返回对象数据的大小，同时提供给外部类反序列化这个数组使用
+          4)、Android中除了需要对数据持久化时使用serializable，其他一般使用parcelable
+Android第十一次笔记
+     1、Fragment碎片
+        1)、相当于一个activity的碎片，需要嵌套在activity中，生命周期受activity影响
+        2)、fragment的加载：
+              定义fragment内布局的xml文件
+              自定义fragment类继承Fragment，在onCreateView()方法中加载布局文件
+              静态加载：在activity的xml布局中添加<fragment/>标签，标签中的name属性：android:name="com.lunzn.myapplication.fragment.FirstFragment"
+              动态加载：在activity中动态加载代码，commit提交事务：getSupportFragmentManager().beginTransaction().replace(R.id.re_root, mFragment).commit();
+        3)、fragment的管理
+              getFragmentManager()(getSupportFragmentManager()).findFragmentById()查找相应的fragment
+              getFragmentManager()(getSupportFragmentManager()).popBackStack();弹出后台的fragment
+              getFragmentManager()(getSupportFragmentManager()).addOnBackStackChangedListener();监听后台变化
+        4)、fragment的事务
+              对fragment的增删改的操作可借助FragmentTransaction对象，实现对象中的方法，新增时需要commit提交事务
+        5)、fragment和activity的交互
+              获取组件：fragment获取activity中的组件：getActivity().findViewById()
+                       activity获取fragment中的组件：getFragmentManager.findFragmentByid();
+        6)、FragmentTransaction的方法
+              add(): onAttach()->…->onResume()
+              remove(): onPause()->…->onDetach()
+              replace(): 相当于旧Fragment调用remove()，新Fragment调用add()
+              show(): 不调用任何生命周期方法，调用该方法的前提是要显示的Fragment已经被添加到容器，只是纯粹把Fragment UI的setVisibility为true
+              hide(): 不调用任何生命周期方法，调用该方法的前提是要显示的Fragment已经被添加到容器，只是纯粹把Fragment UI的setVisibility为false
+        7)、Fragment嵌套Fragment
+              子fragment会onAttach()->…->onResume()，如果添加到回退栈中，返回时子fragment会 onPause()->…->onDetach()，父fragment不会onPause()->…->onDetach()
+        8)、最好不要在button的点击事件中add(fragment),否则fragment重复add会报错
+     2、SharedPreferences
+         以xml的形式保存数据
+         1)、写入数据：SharedPreferences sp = mContext.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+                      SharedPreferences.Editor editor = sp.edit();
+                      editor.putString("name" , flower.getfName());
+         2)、读数据：SharedPreferences sp = mContext.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);
+                    sp.getString("name", "xiaoming");
+         3)、删除数据：SharedPreferences sp = context.getSharedPreferences(FILE_NAME, context.MODE_PRIVATE);
+                      SharedPreferences.Editor editor = sp.edit();
+                      editor.remove(key);
+         4)、增删改操作完成后需commit();
+     3、SQLit数据库
+         1)、自定义数据库帮助类，继承SQLiteOpenHelper，重写onCreate()和onUpgrade()方法
+             在onCreate()方法中创建数据库，当数据库的版本发生变化时调用onUpgrade()方法
+         2)、插入表数据：
+                SQLiteDatabase db = mDBHelper.getWritableDatabase();
+                ContentValues values = new ContentValues();
+                values.put("name", "xiaoming");
+                db.insert("class", null, values); 表名、列名、插入值
+         3)、删除表数据：
+                db.delete("class","name = ?",new String[]{"xiaoming"});表名，where条件，条件值
+         4)、修改数据：
+                db.update("class", values, "name = ?", new String[]{"xiaoming"} );   表名，修改值，where条件，条件值
+         5)、查询表数据：
+                db.query("class",null,null,null,null,null,null);表名
+         6)、事务：设置事务标志为成功，当结束事务时就会提交事务
+                db.setTransactionSuccessful();
+Android第十二次笔记
+     1、activity
+         1)、home键activity的onDestroy()方法不会执行，回到activity后不会执行onCreate()方法，而activity中的fragment只会执行onStart()方法
+         2)、获取当前的activity的名称：getClass().getSimpleName()
+         3)、taskAffinity：所有activity都有一个affinity，这标志着activity是否属于同一个task
+         4)、gettaskId(): 获取activity所在的task的id
+         5)、启动模式：
+             standard模式：即在A中调用startActivity(new Intent(this,A.class))再次启动A，会在当前task中再创建一个A的实例
+             singleTop模式：如果当前activity的实例位于栈顶，则直接复用，否则会创建新的实例位于栈顶
+             singleTask模式：只允许在系统中有一个activity实例，如果系统中已经有了这个实例，将持有这个实例的任务移动到顶部，同时itent将被通过onNewIntent()发送，
+                             如果没有，则会创建一个新的activity并置放在合适的任务中
+             singleInstance模式：无论从那个task启动activity都只会创建一个实例，并将它加入到新的task栈顶
+         6)、singleTask和singleInstance 同一时刻在系统中只会存在一个这样的Activity实例
+     2、contentprovider：
+         contentprovider可以跨进程，跨应用提供自己的数据供外界访问，也可以访问其他应用暴露在外的数据
+         1)、uri：资源标识符: 主要标识：需要操作的ContentProvider和对ContentProvider中的什么数据进行操作
+         2)、Authority:主机名，用于唯一标识这个ContentProvider，外部调用者可以根据这个标识来找到它
+         3)、path:路径，可以用来表示我们要操作的数据
+         4)、ContentResolver：可读取contentProvider的数据
+                insert(): 插入数据
+                delete()：删除数据
+                update()：修改数据
+                query()：查询数据
